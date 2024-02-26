@@ -6,7 +6,11 @@ const ethTransaction = new mongoose.Schema(
       type: Number,
     },
   },
-  { timestamps: true }
+  {
+    timestamps: {
+      currentTime: () => new Date().toLocaleString("en-US", { hour12: true }),
+    },
+  }
 );
 
 const testLinkTransaction = new mongoose.Schema(
@@ -15,7 +19,11 @@ const testLinkTransaction = new mongoose.Schema(
       type: Number,
     },
   },
-  { timestamps: true }
+  {
+    timestamps: {
+      currentTime: () => new Date().toLocaleString("en-US", { hour12: true }),
+    },
+  }
 );
 
 const requestSchema = new mongoose.Schema(
@@ -31,7 +39,11 @@ const requestSchema = new mongoose.Schema(
       type: [testLinkTransaction],
     },
   },
-  { timestamps: true }
+  {
+    timestamps: {
+      currentTime: () => new Date().toLocaleString("en-US", { hour12: true }),
+    },
+  }
 );
 
 export const Request = mongoose.model("Request", requestSchema);

@@ -201,6 +201,7 @@ const registerUser = asyncHandler(async (req, res) => {
     email,
     password,
     userName: userName.toLowerCase(),
+    role: "user",
   });
   console.log(user);
   if (!user) {
@@ -385,29 +386,55 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 });
 
 const makeAdmin = asyncHandler(async (req, res) => {
-  const { userId } = req.params;
-  // console.log(userId);
-  // Check if the user making the request is an admin
-  if (!req.user || req.user.role !== "admin") {
-    throw new ApiError(403, "Unauthorized. Only admins can make users admins.");
+  try {
+    const _id = req.params.userId;
+    const userToUpdate = await User.findById(_id);
+
+    if (!userToUpdate) {
+      throw new ApiError(404, "User not found");
+    }
+
+    // Update the user's role to 'admin'
+    userToUpdate.role = "admin";
+
+    // Save the updated user
+    await userToUpdate.save();
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, userToUpdate, "User is now an admin"));
+  } catch (error) {
+    console.error("Error making user admin:", error);
+    throw new ApiError(501, "Internal Server Error");
   }
+});
 
-  // Find the user by userId
-  const userToUpdate = await User.findById(userId);
+const deleteUser = asyncHandler(async (req, res) => {
+  try {
+    const _id = req.params.userId;
+    const userToDelete = await User.findByIdAndDelete(_id);
 
-  if (!userToUpdate) {
-    throw new ApiError(404, "User not found");
+    if (!userToDelete) {
+      throw new ApiError(404, "User not found");
+    }
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, userToDelete, "User deleted successfully"));
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    throw new ApiError(500, "Internal Server Error");
   }
+});
 
-  // Update the user's role to 'admin'
-  userToUpdate.role = "admin";
+const getAllUsers = asyncHandler(async (req, res) => {
+  const users = await User.find().select("-password -refreshToken");
 
-  // Save the updated user
-  await userToUpdate.save();
-
-  return res
-    .status(200)
-    .json(new ApiResponse(200, userToUpdate, "User is now an admin"));
+  return res.status(200).json({
+    status: 200,
+    data: users,
+    message: "All users retrieved successfully",
+  });
 });
 
 const loginWithGoogle = asyncHandler(async (req, res) => {
@@ -470,4 +497,6 @@ export {
   getCurrentUser,
   makeAdmin,
   loginWithGoogle,
+  getAllUsers,
+  deleteUser,
 };
