@@ -177,12 +177,12 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 
   const avatarLocalPath = req.files?.avatar[0]?.path;
-  // const coverImageLocalPath = req.files?.coverImage[0]?.path;
+  const coverImageLocalPath = req.files?.coverImage[0]?.path;
 
-  let coverImageLocalPath;
-  if (req.files && Array.isArray(req.files.coverImage.length > 0)) {
-    coverImageLocalPath = req.files.coverImage[0].path;
-  }
+  // let coverImageLocalPath;
+  // if (req.files && Array.isArray(req.files.coverImage.length > 0)) {
+  //   coverImageLocalPath = req.files.coverImage[0].path;
+  // }
   if (!avatarLocalPath) {
     throw new ApiError(400, "Avatar is must required");
   }
@@ -385,6 +385,20 @@ const getCurrentUser = asyncHandler(async (req, res) => {
   }
 });
 
+const getSingleUser = asyncHandler(async (req, res) => {
+  // Fetch all requests
+  const _id = req.params.userId;
+  const data = await User.findById(_id).select("-password -refreshToken");
+
+  // if (!userRequests) {
+  //   throw new ApiError(404, "No requests found");
+  // }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, data, "All requests fetched successfully"));
+});
+
 const makeAdmin = asyncHandler(async (req, res) => {
   try {
     const _id = req.params.userId;
@@ -499,4 +513,5 @@ export {
   loginWithGoogle,
   getAllUsers,
   deleteUser,
+  getSingleUser,
 };

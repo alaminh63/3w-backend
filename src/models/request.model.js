@@ -5,6 +5,9 @@ const ethTransaction = new mongoose.Schema(
     amount: {
       type: Number,
     },
+    connectedAccount: {
+      type: String,
+    },
   },
   {
     timestamps: {
@@ -17,6 +20,9 @@ const testLinkTransaction = new mongoose.Schema(
   {
     amount: {
       type: Number,
+    },
+    connectedAccount: {
+      type: String,
     },
   },
   {
@@ -39,6 +45,7 @@ const requestSchema = new mongoose.Schema(
       type: [testLinkTransaction],
     },
   },
+
   {
     timestamps: {
       currentTime: () => new Date().toLocaleString("en-US", { hour12: true }),

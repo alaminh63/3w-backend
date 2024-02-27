@@ -5,6 +5,7 @@ import {
   deleteUser,
   getAllUsers,
   getCurrentUser,
+  getSingleUser,
   loginUser,
   loginWithGoogle,
   logout,
@@ -46,5 +47,6 @@ router.route("/currentUser").get(verifyJWT, getCurrentUser);
 // });
 router.route("/make-admin/:userId").put(verifyJWT, isAdmin, makeAdmin);
 router.route("/getAllUser").get(verifyJWT, isAdmin, getAllUsers);
+router.route("/getSingleUser/:userId").get(verifyJWT, isAdmin, getSingleUser);
 router.route("/deleteUser/:userId").delete(verifyJWT, isAdmin, deleteUser);
 export default router;

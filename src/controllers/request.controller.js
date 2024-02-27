@@ -6,7 +6,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 const requestPost = asyncHandler(async (req, res) => {
-  const { amount, transactionType } = req.body;
+  const { connectedAccount, amount, transactionType } = req.body;
 
   if (!amount && !amount === Number) {
     throw new ApiError(403, "Amount be need with number value");
@@ -17,12 +17,16 @@ const requestPost = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Invalid transaction type");
   }
 
-  const newTransaction = { amount };
+  const newTransaction = { amount, connectedAccount };
 
   // Create a new request document
   const createdRequest = await Request.findOneAndUpdate(
     { owner: req.user._id },
-    { $push: { [`${transactionType}History`]: newTransaction } },
+    {
+      $push: {
+        [`${transactionType}History`]: newTransaction,
+      },
+    },
     { new: true, upsert: true }
   );
 
@@ -47,13 +51,28 @@ const getRequest = asyncHandler(async (req, res) => {
       new ApiResponse(200, allRequests, "All requests fetched successfully")
     );
 });
+const getSingleRequestForAdmin = asyncHandler(async (req, res) => {
+  // Fetch all requests
+  const _id = req.params.id;
+  const singleRequest = await Request.findById(_id);
+
+  if (!singleRequest) {
+    throw new ApiError(404, "No requests found");
+  }
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, singleRequest, "All requests fetched successfully")
+    );
+});
 const getSingleRequest = asyncHandler(async (req, res) => {
   // Fetch all requests
   const userRequests = await Request.findOne({ owner: req.user._id });
 
-  if (!userRequests) {
-    throw new ApiError(404, "No requests found");
-  }
+  // if (!userRequests) {
+  //   throw new ApiError(404, "No requests found");
+  // }
 
   return res
     .status(200)
@@ -62,4 +81,4 @@ const getSingleRequest = asyncHandler(async (req, res) => {
     );
 });
 
-export { requestPost, getRequest, getSingleRequest };
+export { requestPost, getRequest, getSingleRequest, getSingleRequestForAdmin };
