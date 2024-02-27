@@ -16,6 +16,6 @@ router.route("/getRequest").get(verifyJWT, getRequest);
 router.route("/getSingleRequest").get(verifyJWT, getSingleRequest);
 router
   .route("/getSingleRequestAdmin/:id")
-  .get(verifyJWT, isAdmin, getSingleRequestForAdmin);
+  .get(verifyJWT, getSingleRequestForAdmin);
 
 export default router;
