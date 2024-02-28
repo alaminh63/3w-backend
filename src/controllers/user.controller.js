@@ -6,7 +6,7 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 
-const generateAccessAndRefreshTokens = async (userId) => {
+export const generateAccessAndRefreshTokens = async (userId) => {
   try {
     const user = await User.findById(userId);
 
@@ -562,6 +562,57 @@ const getAllUsers = asyncHandler(async (req, res) => {
   });
 });
 
+// const loginWithGoogle = asyncHandler(async (req, res) => {
+//   const { tokenId } = req.body;
+
+//   try {
+//     const response = await axios.post(
+//       "https://www.googleapis.com/oauth2/v3/tokeninfo",
+//       { id_token: tokenId }
+//     );
+
+//     const { email, sub, name, picture } = response.data;
+
+//     let user = await User.findOne({ "google.id": sub });
+
+//     if (!user) {
+//       // Create a new user with Google profile information and set the role to "user"
+//       user = await User.create({
+//         fullName: name,
+//         email,
+//         avatar: picture,
+//         userName: name.toLowerCase().replace(/\s/g, "_"),
+//         "google.id": sub,
+//         role: "user", // Set the role to "user" for new users
+//       });
+//     }
+
+//     // Generate and attach local access and refresh tokens
+//     const { accessToken: localAccessToken, refreshToken: localRefreshToken } =
+//       await generateAccessAndRefreshTokens(user._id);
+//     user.accessToken = localAccessToken;
+//     user.refreshToken = localRefreshToken;
+
+//     // Set cookies
+//     const options = {
+//       httpOnly: true,
+//       secure: true,
+//     };
+
+//     // Set the cookies for accessToken and refreshToken
+//     res.cookie("accessToken", localAccessToken, options);
+//     res.cookie("refreshToken", localRefreshToken, options);
+
+//     return res.status(200).json({
+//       user: user,
+//       accessToken: localAccessToken,
+//       refreshToken: localRefreshToken,
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     throw new ApiError(401, "Invalid Google token");
+//   }
+// });
 const loginWithGoogle = asyncHandler(async (req, res) => {
   const { tokenId } = req.body;
 

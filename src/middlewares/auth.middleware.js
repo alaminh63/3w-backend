@@ -212,8 +212,7 @@ passport.use(
 export const verifyJWT = asyncHandler(async (req, res, next) => {
   try {
     const authorization = req.headers.authorization;
-    const token =
-      authorization.split(" ")[1] ||
+    const token = authorization.split(" ")[1] ||
       // req.cookies?.accessToken ||
       req.header("Authorization")?.replace("Bearer", "");
 

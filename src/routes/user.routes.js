@@ -92,7 +92,7 @@ router.route("/auth/google").get(googleAuthMiddleware);
 router.route("/auth/google/callback").get(
   googleAuthCallbackMiddleware,
   handleGoogleAuthCallback
-);
+);router.route("/loginWithGoogle").post(loginWithGoogle);
 
 router.route("/logout").post(verifyJWT, logout);
 router.route("/refreshToken").post(refreshAccessToken);
