@@ -359,21 +359,6 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
 const getCurrentUser = asyncHandler(async (req, res) => {
   try {
-    // const { _id } = req.user;
-
-    // if (!_id) {
-    //   throw new ApiError(402, "Id not found");
-    // }
-
-    // // Assuming you have a Mongoose User model
-    // const result = await User.findById(_id);
-
-    // if (!result) {
-    //   throw new ApiError(404, "User not found");
-    // }
-
-    // console.log(result);
-
     return res.status(200).json({
       status: 200,
       data: req.user,
