@@ -159,6 +159,7 @@ const generateAccessAndRefreshTokens = async (userId) => {
 //   }
 // });
 
+/* this is working well
 const registerUser = asyncHandler(async (req, res) => {
   const { fullName, email, userName, password } = req.body;
 
@@ -254,6 +255,131 @@ const loginUser = asyncHandler(async (req, res) => {
       secure: true,
     };
     // console.log(user);
+    return res
+      .status(200)
+      .cookie("accessToken", accessToken, options)
+      .cookie("refreshToken", refreshToken, options)
+      .json(
+        new ApiResponse(
+          200,
+          {
+            user: loggedInUser,
+            accessToken,
+            refreshToken,
+          },
+          "User logged in successfully"
+        )
+      );
+  } else {
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          req.user,
+          "User logged in with Google successfully"
+        )
+      );
+  }
+});
+
+*/
+
+const registerUser = asyncHandler(async (req, res) => {
+  const { fullName, email, userName, password } = req.body;
+
+  if (
+    [fullName, email, userName, password].some((field) => field?.trim() === "")
+  ) {
+    throw new ApiError(400, "All Field ARE REQUIRED");
+  }
+
+  const existedUser = await User.findOne({
+    $or: [{ userName }, { email }],
+  });
+
+  if (existedUser) {
+    throw new ApiError(409, "User with email or username already existed");
+  }
+
+  const avatarLocalPath = req.files?.avatar[0]?.path;
+  const coverImageLocalPath = req.files?.coverImage[0]?.path;
+
+  // let coverImageLocalPath;
+  // if (req.files && Array.isArray(req.files.coverImage.length > 0)) {
+  //   coverImageLocalPath = req.files.coverImage[0].path;
+  // }
+  if (!avatarLocalPath) {
+    throw new ApiError(400, "Avatar is must required");
+  }
+
+  const avatar = await uploadOnCloudinary(avatarLocalPath);
+  const coverImage = await uploadOnCloudinary(coverImageLocalPath);
+
+  if (!avatar) {
+    throw new ApiError(400, "Avatar is must required");
+  }
+
+  const user = await User.create({
+    fullName,
+    avatar: avatar.url,
+    coverImage: coverImage?.url || "",
+    email,
+    password,
+    userName: userName.toLowerCase(),
+    role: "user",
+  });
+  console.log(user);
+  if (!user) {
+    throw new ApiError(500, "Something went wrong, user not created");
+  }
+  const createdUser = await User.findById(user._id).select(
+    "-password -refreshToken"
+  );
+
+  if (!createdUser) {
+    throw new ApiError(500, "Something is wrong user not created ");
+  }
+  return res
+    .status(201)
+    .json(new ApiResponse(200, createdUser, "User Registered Successfully"));
+});
+
+const loginUser = asyncHandler(async (req, res) => {
+  const { email, userName, password } = req.body;
+
+  const isGoogleLogin = req.user?.google?.id;
+
+  if (!isGoogleLogin) {
+    if (!(email || userName)) {
+      throw new ApiError(400, "Email or UserName must be provided for login");
+    }
+
+    const user = await User.findOne({ $or: [{ userName }, { email }] });
+
+    if (!user) {
+      throw new ApiError(404, "User doesn't exist");
+    }
+
+    const isPasswordValid = await user.isPasswordCorrect(password);
+
+    if (!isPasswordValid) {
+      throw new ApiError(404, "Password incorrect");
+    }
+
+    const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
+      user._id
+    );
+
+    const loggedInUser = await User.findById(user._id).select(
+      "-password -refreshToken"
+    );
+
+    const options = {
+      httpOnly: true,
+      secure: true,
+    };
+
     return res
       .status(200)
       .cookie("accessToken", accessToken, options)

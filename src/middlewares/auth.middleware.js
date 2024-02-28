@@ -128,9 +128,6 @@
 //   }
 // });
 
-
-
-
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
@@ -217,7 +214,7 @@ export const verifyJWT = asyncHandler(async (req, res, next) => {
     const authorization = req.headers.authorization;
     const token =
       authorization.split(" ")[1] ||
-      req.cookies?.accessToken ||
+      // req.cookies?.accessToken ||
       req.header("Authorization")?.replace("Bearer", "");
 
     if (!token) {
