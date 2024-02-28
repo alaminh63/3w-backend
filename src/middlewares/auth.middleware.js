@@ -20,64 +20,64 @@ const jwtOptions = {
   secretOrKey: process.env.ACCESS_TOKEN_SECRET,
 };
 
-passport.use(
-  new GoogleStrategy(
-    {
-      clientID: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: process.env.GOOGLE_CALLBACK_URL,
-    },
-    async (_, __, profile, done) => {
-      try {
-        let user = await User.findOne({ "google.id": profile.id });
+// passport.use(
+//   new GoogleStrategy(
+//     {
+//       clientID: process.env.GOOGLE_CLIENT_ID,
+//       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+//       callbackURL: process.env.GOOGLE_CALLBACK_URL,
+//     },
+//     async (_, __, profile, done) => {
+//       try {
+//         let user = await User.findOne({ "google.id": profile.id });
 
-        if (!user) {
-          user = await User.create({
-            fullName: profile.displayName,
-            email: profile.emails[0].value,
-            avatar: profile.photos[0].value,
-            userName: profile.displayName.toLowerCase().replace(/\s/g, "_"),
-            "google.id": profile.id,
-            role: "user",
-          });
-        } else {
-          user.google.accessToken = accessToken;
-          user.google.refreshToken = refreshToken;
-          await user.save();
-        }
+//         if (!user) {
+//           user = await User.create({
+//             fullName: profile.displayName,
+//             email: profile.emails[0].value,
+//             avatar: profile.photos[0].value,
+//             userName: profile.displayName.toLowerCase().replace(/\s/g, "_"),
+//             "google.id": profile.id,
+//             role: "user",
+//           });
+//         } else {
+//           user.google.accessToken = accessToken;
+//           user.google.refreshToken = refreshToken;
+//           await user.save();
+//         }
 
-        const {
-          accessToken: localAccessToken,
-          refreshToken: localRefreshToken,
-        } = await generateAccessAndRefreshTokens(user._id);
-        user.accessToken = localAccessToken;
-        user.refreshToken = localRefreshToken;
+//         const {
+//           accessToken: localAccessToken,
+//           refreshToken: localRefreshToken,
+//         } = await generateAccessAndRefreshTokens(user._id);
+//         user.accessToken = localAccessToken;
+//         user.refreshToken = localRefreshToken;
 
-        done(null, user);
-      } catch (error) {
-        done(error);
-      }
-    }
-  )
-);
+//         done(null, user);
+//       } catch (error) {
+//         done(error);
+//       }
+//     }
+//   )
+// );
 
-passport.use(
-  new JwtStrategy(jwtOptions, async (payload, done) => {
-    try {
-      const user = await User.findById(payload._id).select(
-        "-password -refreshToken"
-      );
+// passport.use(
+//   new JwtStrategy(jwtOptions, async (payload, done) => {
+//     try {
+//       const user = await User.findById(payload._id).select(
+//         "-password -refreshToken"
+//       );
 
-      if (!user) {
-        return done(null, false);
-      }
+//       if (!user) {
+//         return done(null, false);
+//       }
 
-      return done(null, user);
-    } catch (error) {
-      return done(error, false);
-    }
-  })
-);
+//       return done(null, user);
+//     } catch (error) {
+//       return done(error, false);
+//     }
+//   })
+// );
 
 export const verifyJWT = asyncHandler(async (req, res, next) => {
   try {
